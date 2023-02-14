@@ -12,7 +12,6 @@ app.register_blueprint(app_views)
 
 @app.teardown_appcontext
 def teardown_db(exception):
-    """calls close()"""
     storage.close()
 
 if __name__ == "__main__":
