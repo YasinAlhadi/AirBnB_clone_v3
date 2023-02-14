@@ -1,4 +1,7 @@
 #!/usr/bin/python3
+"""
+    run flask
+"""
 from flask import Flask, Blueprint
 from models import storage
 from api.v1.views import app_views
