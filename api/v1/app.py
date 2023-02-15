@@ -20,7 +20,7 @@ def teardown_db(self):
 @app.errorhandler(404)
 def page_not_found(error):
     """404 error handler"""
-    msg =  {"error": "Not found"}
+    msg = {"error": "Not found"}
     return jsonify(msg), 404
 
 
