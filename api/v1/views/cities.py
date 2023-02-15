@@ -1,10 +1,10 @@
 #!/usr/bin/python3
 """State module"""
 from api.v1.views import app_views
-from flask import jsonify, abort, request, make_response
+from flask import jsonify, abort, request
 from models import storage
-from models import city
 from models.state import State
+from models.city import City
 
 
 @app_views.route('/states/<state_id>/cities', methods=['GET'],
@@ -12,13 +12,13 @@ from models.state import State
 def get_all():
     """Retrieves the list of all City objects of a State"""
     cities_list = []
-    cities = storage.all('City')
+    all_cities = storage.all('City')
 
     get_state = storage.get('State', state_id)
     if get_state is None:
         abort(404)
 
-    for city in cities.values():
+    for city in all_cities.values():
         if city.state_id == state_id:
             cities_list.append(city.to_dict())
     return jsonify(cities_list)
@@ -43,20 +43,21 @@ def del_method(city_id):
         abort(404)
     city.delete()
     storage.save()
+    storage.close()
     return jsonify({}), 200
 
 
 @app_views.route('/states/<state_id>/cities', methods=['POST'],
                  strict_slashes=False)
-def create_obj():
+def create_obj(state_id):
     """create new instance"""
     js = request.get_json()
     if not js:
         abort(400, 'Not a JSON')
     if 'name' not in js:
         abort(400, 'Missing name')
-    city = storage.get('City', city_id)
-    if city is None:
+    state = storage.get('State', state_id)
+    if state is None:
         abort(404)
     new_city = City(**js)
     new_city.state_id = state_id
@@ -68,7 +69,7 @@ def create_obj():
 
 @app_views.route('/cities/<city_id>', methods=['PUT'],
                  strict_slashes=False)
-def post_method(city_id):
+def put_method(city_id):
     """post method"""
     if not request.get_json():
         abort(400, 'Not a JSON')
@@ -78,5 +79,6 @@ def post_method(city_id):
     for key, value in request.get_json().items():
         if key not in ['id', 'created_at', 'updated']:
             setattr(obj, key, value)
-    storage.save()
+    obj.save()
+    storage.close()
     return jsonify(obj.to_dict()), 200

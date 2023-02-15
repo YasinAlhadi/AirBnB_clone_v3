@@ -46,7 +46,8 @@ def del_place(place_id):
         abort(404)
     place.delete()
     storage.save()
-    return jsonify({})
+    storage.close()
+    return jsonify({}), 200
 
 
 @app_views.route('/cities/<string:city_id>/places', methods=['POST'],
@@ -70,6 +71,7 @@ def create_obj_place(city_id):
         abort(404)
     obj = Place(**kwargs)
     obj.save()
+    storage.close()
     return (jsonify(obj.to_dict()), 201)
 
 
@@ -77,7 +79,7 @@ def create_obj_place(city_id):
                  strict_slashes=False)
 @swag_from('documentation/places/put.yml', methods=['PUT'])
 def post_place(place_id):
-    """ update by id """
+    """update by id"""
     if not request.get_json():
         return make_response(jsonify({"error": "Not a JSON"}), 400)
     obj = storage.get(Place, place_id)
@@ -86,8 +88,9 @@ def post_place(place_id):
     for key, value in request.get_json().items():
         if key not in ['id', 'user_id', 'city_id', 'created_at', 'updated']:
             setattr(obj, key, value)
-    storage.save()
-    return jsonify(obj.to_dict())
+    obj.save()
+    storage.close()
+    return jsonify(obj.to_dict()), 200
 
 
 @app_views.route('/places_search', methods=['POST'],
