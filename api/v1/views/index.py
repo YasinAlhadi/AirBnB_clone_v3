@@ -2,15 +2,16 @@
 """
     instance of Blueprint
 """
-from flask import jsonify
 from api.v1.views import app_views
+from flask import jsonify
 from models import storage
 
 
 @app_views.route('/status')
 def status():
     """returns a JSON status"""
-    return jsonify({"status": "OK"})
+    stat = {"status": "OK"}
+    return jsonify(stat)
 
 
 @app_views.route('/stats')
