@@ -5,15 +5,16 @@ from flask import jsonify, abort, request
 from models import storage
 from models.state import State
 from models.city import City
+from flasgger.utils import swag_from
 
 
 @app_views.route('/states/<state_id>/cities', methods=['GET'],
                  strict_slashes=False)
-def get_all():
+@swag_from('documentation/cities/get.yml', methods=['GET'])
+def get_cities(state_id):
     """Retrieves the list of all City objects of a State"""
     cities_list = []
     all_cities = storage.all('City')
-
     get_state = storage.get('State', state_id)
     if get_state is None:
         abort(404)
@@ -36,7 +37,7 @@ def get_method_city(city_id):
 
 @app_views.route('/cities/<city_id>', methods=['DELETE'],
                  strict_slashes=False)
-def del_method(city_id):
+def del_city(city_id):
     """ delete city by id"""
     city = storage.get('City', city_id)
     if city is None:
@@ -49,7 +50,7 @@ def del_method(city_id):
 
 @app_views.route('/states/<state_id>/cities', methods=['POST'],
                  strict_slashes=False)
-def create_obj(state_id):
+def create_city(state_id):
     """create new instance"""
     js = request.get_json()
     if not js:
@@ -69,7 +70,7 @@ def create_obj(state_id):
 
 @app_views.route('/cities/<city_id>', methods=['PUT'],
                  strict_slashes=False)
-def put_method(city_id):
+def put_city(city_id):
     """post method"""
     if not request.get_json():
         abort(400, 'Not a JSON')
